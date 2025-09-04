@@ -27,13 +27,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const getUser = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
-        console.error('Error fetching user:', error);
-      }
-      if (mounted) {
+        // Optionally, set an error state and show a user-friendly message
+        setUser(null);
+        setSession(null);
+        setLoading(false);
+        // Could show a toast or error UI here
+      } else if (mounted) {
         setUser(data.user ?? null);
         setSession(null);
         setLoading(false);
-        console.log('AuthContext: Initial user loaded', data.user);
       }
     };
 
@@ -43,7 +45,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       // Do not set loading to false here, only after initial load
-      console.log('AuthContext: Auth state changed', _event, session, session?.user);
+      // No logging of sensitive data
     });
 
     return () => {
@@ -56,7 +58,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await supabase.auth.signOut();
   };
 
-  console.log('AuthContext: user', user);
+  // No logging of user/session data
   return (
     <AuthContext.Provider value={{ session, user, signOut, loading }}>
       {children}

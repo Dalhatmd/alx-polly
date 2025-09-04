@@ -6,9 +6,30 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  // Validate environment variables
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Missing Supabase environment variables')
+    return new NextResponse('Server configuration error', { status: 500 })
+  }
+
+  // Basic CSRF protection for POST requests
+  if (request.method === 'POST') {
+    const csrfToken = request.headers.get('x-csrf-token')
+    const referer = request.headers.get('referer')
+    const origin = request.headers.get('origin')
+    
+    // Check if request comes from same origin
+    if (!referer || !origin || !referer.startsWith(origin)) {
+      return new NextResponse('CSRF validation failed', { status: 403 })
+    }
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -31,12 +52,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  // Allow access to public routes and auth pages
+  const publicPaths = ['/login', '/register', '/auth', '/api/auth']
+  const isPublicPath = publicPaths.some(path => 
+    request.nextUrl.pathname.startsWith(path)
+  )
+
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)

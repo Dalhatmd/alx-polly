@@ -24,11 +24,32 @@ export default function VulnerableShare({
 }: VulnerableShareProps) {
   const [shareUrl, setShareUrl] = useState("");
 
+  // Helper to sanitize pollTitle for rendering and sharing
+  const sanitizeText = (text: string) => {
+    // Remove script tags and encode HTML entities
+    const entityMap: { [key: string]: string } = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      "'": '&#39;',
+      '"': '&quot;',
+      '`': '&#96;'
+    };
+    return text.replace(/<script.*?>.*?<\/script>/gi, "").replace(/[&<>'"`]/g, (c) => entityMap[c] || c);
+  };
+
+  // Validate pollId (simple: only allow alphanumeric and dashes)
+  const isValidPollId = (id: string) => /^[a-zA-Z0-9\-]+$/.test(id);
+
   useEffect(() => {
-    // Generate the share URL
-    const baseUrl = window.location.origin;
-    const pollUrl = `${baseUrl}/polls/${pollId}`;
-    setShareUrl(pollUrl);
+    // Generate the share URL only if pollId is valid
+    if (isValidPollId(pollId)) {
+      const baseUrl = window.location.origin;
+      const pollUrl = `${baseUrl}/polls/${pollId}`;
+      setShareUrl(pollUrl);
+    } else {
+      setShareUrl("");
+    }
   }, [pollId]);
 
   const copyToClipboard = async () => {
@@ -41,7 +62,8 @@ export default function VulnerableShare({
   };
 
   const shareOnTwitter = () => {
-    const text = encodeURIComponent(`Check out this poll: ${pollTitle}`);
+    const safeTitle = sanitizeText(pollTitle);
+    const text = encodeURIComponent(`Check out this poll: ${safeTitle}`);
     const url = encodeURIComponent(shareUrl);
     window.open(
       `https://twitter.com/intent/tweet?text=${text}&url=${url}`,
