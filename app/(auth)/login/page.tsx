@@ -26,9 +26,6 @@ export default function LoginPage() {
     if (result?.error) {
       setError(result.error);
       setLoading(false);
-    } else {
-      window.location.href = '/polls'; // Full reload to pick up session
-    }
   };
 
   return (

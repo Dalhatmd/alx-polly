@@ -1,4 +1,5 @@
 'use server';
+import { redirect } from 'next/navigation';
 
 import { createClient } from '@/lib/supabase/server';
 import { LoginFormData, RegisterFormData } from '../types';
@@ -15,8 +16,7 @@ export async function login(data: LoginFormData) {
     return { error: error.message };
   }
 
-  // Success: no error
-  return { error: null };
+  redirect('/polls');
 }
 
 export async function register(data: RegisterFormData) {
