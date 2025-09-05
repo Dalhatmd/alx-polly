@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
 
+// Define auth context type with all necessary authentication state
 const AuthContext = createContext<{ 
   session: Session | null;
   user: User | null;
@@ -16,6 +17,11 @@ const AuthContext = createContext<{
   loading: true,
 });
 
+/**
+ * Authentication provider component that manages user auth state
+ * Wraps the app with authentication context for session management
+ * @param children - Child components that need access to auth state
+ */
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const supabase = useMemo(() => createClient(), []);
   const [session, setSession] = useState<Session | null>(null);
@@ -24,6 +30,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     let mounted = true;
+    
+    /**
+     * Retrieves current user from Supabase auth session
+     * Initializes auth state and handles authentication errors
+     */
     const getUser = async () => {
       const { data, error } = await supabase.auth.getUser();
       if (error) {
@@ -41,6 +52,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     getUser();
 
+    // Listen for auth state changes (login, logout, token refresh)
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
@@ -54,6 +66,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, [supabase]);
 
+  /**
+   * Signs out the current user and clears authentication state
+   * Calls Supabase auth signOut method to end user session
+   */
   const signOut = async () => {
     await supabase.auth.signOut();
   };
@@ -66,4 +82,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+/**
+ * Hook to access authentication context in components
+ * Provides session, user, signOut function, and loading state
+ * @returns Auth context object with current authentication state
+ */
 export const useAuth = () => useContext(AuthContext);

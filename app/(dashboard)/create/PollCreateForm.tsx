@@ -6,16 +6,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+/**
+ * Poll creation form component with dynamic option management
+ * Allows users to create polls with custom questions and multiple options
+ * @returns Form component for creating new polls
+ */
 export default function PollCreateForm() {
   const [options, setOptions] = useState(["", ""]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  /**
+   * Updates the value of a specific poll option
+   * @param idx - Index of the option to update
+   * @param value - New value for the option
+   */
   const handleOptionChange = (idx: number, value: string) => {
     setOptions((opts) => opts.map((opt, i) => (i === idx ? value : opt)));
   };
 
+  /**
+   * Adds a new empty option to the poll
+   * Allows for unlimited poll options
+   */
   const addOption = () => setOptions((opts) => [...opts, ""]);
+  
+  /**
+   * Removes an option from the poll by index
+   * Maintains minimum of 2 options required for a valid poll
+   * @param idx - Index of the option to remove
+   */
   const removeOption = (idx: number) => {
     if (options.length > 2) {
       setOptions((opts) => opts.filter((_, i) => i !== idx));

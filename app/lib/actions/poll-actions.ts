@@ -4,18 +4,26 @@ import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { isUserAdmin } from "@/lib/auth/admin";
 
-// CREATE POLL
+/**
+ * Creates a new poll with title, description, and options
+ * Validates input data, sanitizes HTML, and stores in database
+ * @param formData - Form data containing title, description, and options
+ * @returns Error object if creation fails, null error on success
+ */
 export async function createPoll(formData: FormData) {
   const supabase = await createClient();
 
-  let question = formData.get("question") as string;
+  let title = formData.get("title") as string || formData.get("question") as string;
+  let description = formData.get("description") as string;
   let options = formData.getAll("options").filter(Boolean) as string[];
-  // Sanitize question and options
-  question = question?.replace(/<[^>]*>?/gm, "").trim();
+  
+  // Sanitize title, description and options
+  title = title?.replace(/<[^>]*>?/gm, "").trim();
+  description = description?.replace(/<[^>]*>?/gm, "").trim();
   options = options.map(opt => opt.replace(/<[^>]*>?/gm, "").trim());
 
-  if (!question || options.length < 2 || options.some(opt => !opt)) {
-    return { error: "Please provide a valid question and at least two non-empty options." };
+  if (!title || options.length < 2 || options.some(opt => !opt)) {
+    return { error: "Please provide a valid title and at least two non-empty options." };
   }
 
   // Get user from session
@@ -33,7 +41,8 @@ export async function createPoll(formData: FormData) {
   const { error } = await supabase.from("polls").insert([
     {
       user_id: user.id,
-      question,
+      title,
+      description,
       options,
     },
   ]);
@@ -46,7 +55,11 @@ export async function createPoll(formData: FormData) {
   return { error: null };
 }
 
-// GET USER POLLS
+/**
+ * Retrieves all polls created by the currently authenticated user
+ * Returns polls sorted by creation date (newest first)
+ * @returns Object containing polls array and error status
+ */
 export async function getUserPolls() {
   const supabase = await createClient();
   const {
@@ -64,7 +77,12 @@ export async function getUserPolls() {
   return { polls: data ?? [], error: null };
 }
 
-// GET POLL BY ID
+/**
+ * Fetches a single poll by its ID from the database
+ * Used for displaying poll details and voting interface
+ * @param id - Unique identifier of the poll to retrieve
+ * @returns Object containing poll data and error status
+ */
 export async function getPollById(id: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -77,7 +95,13 @@ export async function getPollById(id: string) {
   return { poll: data, error: null };
 }
 
-// SUBMIT VOTE
+/**
+ * Records a user's vote for a specific poll option
+ * Allows anonymous voting if user is not authenticated
+ * @param pollId - ID of the poll being voted on
+ * @param optionIndex - Index of the selected option
+ * @returns Error object if vote submission fails, null error on success
+ */
 export async function submitVote(pollId: string, optionIndex: number) {
   const supabase = await createClient();
   const {
@@ -99,7 +123,12 @@ export async function submitVote(pollId: string, optionIndex: number) {
   return { error: null };
 }
 
-// DELETE POLL
+/**
+ * Deletes a poll from the database with authorization checks
+ * Only allows deletion by poll owner or admin users
+ * @param id - ID of the poll to delete
+ * @returns Error object if deletion fails, null error on success
+ */
 export async function deletePoll(id: string) {
   const supabase = await createClient();
   const {
@@ -143,18 +172,27 @@ export async function deletePoll(id: string) {
   return { error: null };
 }
 
-// UPDATE POLL
+/**
+ * Updates an existing poll's title, description, and options
+ * Only allows updates by the poll owner, validates and sanitizes input
+ * @param pollId - ID of the poll to update
+ * @param formData - Form data containing updated title, description, and options
+ * @returns Error object if update fails, null error on success
+ */
 export async function updatePoll(pollId: string, formData: FormData) {
   const supabase = await createClient();
 
-  let question = formData.get("question") as string;
+  let title = formData.get("title") as string || formData.get("question") as string;
+  let description = formData.get("description") as string;
   let options = formData.getAll("options").filter(Boolean) as string[];
-  // Sanitize question and options
-  question = question?.replace(/<[^>]*>?/gm, "").trim();
+  
+  // Sanitize title, description and options
+  title = title?.replace(/<[^>]*>?/gm, "").trim();
+  description = description?.replace(/<[^>]*>?/gm, "").trim();
   options = options.map(opt => opt.replace(/<[^>]*>?/gm, "").trim());
 
-  if (!question || options.length < 2 || options.some(opt => !opt)) {
-    return { error: "Please provide a valid question and at least two non-empty options." };
+  if (!title || options.length < 2 || options.some(opt => !opt)) {
+    return { error: "Please provide a valid title and at least two non-empty options." };
   }
 
   // Get user from session
@@ -182,10 +220,15 @@ export async function updatePoll(pollId: string, formData: FormData) {
     return { error: "You are not allowed to update this poll." };
   }
 
-  const { error } = await supabase.from("polls").update({ question, options }).eq("id", pollId);
+  const { error } = await supabase.from("polls").update({ 
+    title, 
+    description, 
+    options 
+  }).eq("id", pollId);
   if (error) {
     return { error: error.message };
   }
 
+  revalidatePath("/polls");
   return { error: null };
 }

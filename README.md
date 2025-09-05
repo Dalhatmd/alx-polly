@@ -93,6 +93,227 @@ npm run dev
 
 The application will be available at `http://localhost:3000`.
 
+---
+
+## 📖 Usage Guide
+
+### Getting Started with ALX Polly
+
+Once you have the application running, here's how to use all the features:
+
+#### 1. User Registration and Authentication
+
+**Creating a New Account:**
+1. Navigate to `http://localhost:3000`
+2. Click "Sign Up" or go to `/register`
+3. Fill in your details:
+   ```
+   Name: Your Full Name
+   Email: your.email@example.com
+   Password: (minimum 8 characters)
+   ```
+4. Click "Create Account"
+5. Check your email for verification (if configured in Supabase)
+
+**Logging In:**
+1. Go to `/login` or click "Log In"
+2. Enter your credentials:
+   ```
+   Email: your.email@example.com
+   Password: your_password
+   ```
+3. Click "Sign In"
+4. You'll be redirected to the polls dashboard
+
+#### 2. Creating Your First Poll
+
+**Step-by-Step Poll Creation:**
+1. After logging in, click "Create New Poll" or navigate to `/create`
+2. Fill out the poll form:
+   ```
+   Poll Question: "What's your favorite programming language?"
+   
+   Options:
+   - JavaScript
+   - Python
+   - TypeScript
+   - Go
+   ```
+3. Add more options by clicking "Add Option"
+4. Remove options by clicking "Remove" (minimum 2 options required)
+5. Click "Create Poll"
+6. Your poll will be created and you'll be redirected to the polls list
+
+**Poll Creation Tips:**
+- Keep questions clear and concise
+- Provide balanced and comprehensive options
+- You can add unlimited poll options
+- HTML tags are automatically sanitized for security
+
+#### 3. Managing Your Polls
+
+**Viewing Your Polls:**
+- Go to `/polls` to see all your created polls
+- Each poll card shows:
+  - Poll question
+  - Number of options
+  - Total vote count
+  - Creation date
+
+**Editing Polls:**
+1. Click on any of your polls
+2. Click the "Edit" button (only visible for poll owners)
+3. Modify the question or options
+4. Click "Update Poll" to save changes
+
+**Deleting Polls:**
+1. From your polls list, click on a poll
+2. Click the "Delete" button (only visible for poll owners)
+3. Confirm the deletion in the popup
+4. The poll will be permanently removed
+
+#### 4. Voting on Polls
+
+**How to Vote:**
+1. Navigate to any poll by clicking on it
+2. Review the question and options
+3. Select your preferred option
+4. Click "Submit Vote"
+5. View real-time results after voting
+
+**Voting Features:**
+- Anonymous voting is allowed (even without account)
+- One vote per session (basic implementation)
+- Real-time vote counting
+- Visual results display
+
+#### 5. Sharing Polls
+
+**Getting Poll Links:**
+- Each poll has a unique URL: `/polls/[poll-id]`
+- Share this URL with others to collect votes
+- No authentication required for voting
+
+**Example Poll URL:**
+```
+http://localhost:3000/polls/abc123-def456-ghi789
+```
+
+### 🔧 Advanced Features
+
+#### Admin Panel (For Administrators)
+
+If you have admin privileges:
+
+1. **Accessing Admin Panel:**
+   - Navigate to `/admin`
+   - Only users with admin role can access this page
+
+2. **Admin Capabilities:**
+   - View all polls in the system
+   - See poll owner information
+   - Delete any poll (with proper authorization)
+   - Monitor system usage
+
+3. **Setting Up Admin Users:**
+   ```sql
+   -- Option 1: Using user_profiles table
+   INSERT INTO user_profiles (user_id, role) 
+   VALUES ('user-uuid-here', 'admin');
+   
+   -- Option 2: Using admin_users table  
+   INSERT INTO admin_users (user_id, is_active) 
+   VALUES ('user-uuid-here', true);
+   ```
+
+#### API Endpoints
+
+The application provides server actions for:
+
+- **Authentication:**
+  - `login(data)` - User login
+  - `register(data)` - User registration
+  - `logout()` - User logout
+
+- **Poll Management:**
+  - `createPoll(formData)` - Create new poll
+  - `getUserPolls()` - Get user's polls
+  - `getPollById(id)` - Get specific poll
+  - `updatePoll(id, formData)` - Update poll
+  - `deletePoll(id)` - Delete poll
+  - `submitVote(pollId, optionIndex)` - Submit vote
+
+### 📱 User Interface Guide
+
+#### Navigation
+- **Header:** Contains app logo, navigation links, and user menu
+- **Dashboard:** Main area showing your polls and actions
+- **Footer:** Additional links and information
+
+#### Responsive Design
+- Mobile-friendly interface
+- Touch-optimized buttons and forms
+- Adaptive layouts for all screen sizes
+
+#### Accessibility Features
+- Keyboard navigation support
+- Screen reader friendly
+- High contrast mode support
+- Focus indicators
+
+### 🎯 Usage Examples
+
+#### Example 1: Survey Poll
+```
+Question: "How satisfied are you with our service?"
+Options:
+- Very Satisfied
+- Satisfied  
+- Neutral
+- Dissatisfied
+- Very Dissatisfied
+```
+
+#### Example 2: Decision Making Poll
+```
+Question: "Which feature should we prioritize next?"
+Options:
+- Dark mode theme
+- Mobile app
+- Advanced analytics
+- Team collaboration
+- API integration
+```
+
+#### Example 3: Event Planning Poll
+```
+Question: "What time works best for the team meeting?"
+Options:
+- 9:00 AM
+- 11:00 AM
+- 2:00 PM
+- 4:00 PM
+```
+
+### 🔒 Security Best Practices
+
+When using ALX Polly:
+
+1. **Account Security:**
+   - Use strong, unique passwords
+   - Keep login credentials secure
+   - Log out when finished
+
+2. **Poll Creation:**
+   - Avoid including sensitive information
+   - Be mindful of poll visibility (public voting)
+   - Review options before publishing
+
+3. **Voting:**
+   - Vote honestly and responsibly
+   - Respect poll creator's intent
+   - Don't attempt to manipulate results
+
 Good luck, engineer! This is your chance to step into the shoes of a security professional and make a real impact on the quality and safety of this application. Happy hunting!
 
 ---

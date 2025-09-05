@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 
 /**
- * Check if a user has admin privileges
- * This should be validated against a proper user roles system in production
+ * Check if a user has admin privileges by validating against user roles
+ * Checks both user_profiles table role and admin_users table for admin status
+ * @param userId - The unique identifier of the user to check
+ * @returns Promise that resolves to true if user is admin, false otherwise
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
   const supabase = await createClient();
@@ -46,7 +48,9 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 }
 
 /**
- * Check if current authenticated user is admin
+ * Check if current authenticated user has admin privileges
+ * Retrieves current user session and validates admin status
+ * @returns Promise that resolves to true if current user is admin, false otherwise
  */
 export async function isCurrentUserAdmin(): Promise<boolean> {
   const supabase = await createClient();
@@ -61,7 +65,10 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
 }
 
 /**
- * Middleware function to protect admin routes
+ * Middleware function to protect admin-only routes
+ * Throws error if current user lacks admin privileges
+ * @returns Promise that resolves to true if user is admin
+ * @throws Error if user is not admin or authentication fails
  */
 export async function requireAdmin() {
   const isAdmin = await isCurrentUserAdmin();

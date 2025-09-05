@@ -5,6 +5,10 @@ import { useAuth } from "@/app/lib/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { deletePoll } from "@/app/lib/actions/poll-actions";
 
+/**
+ * Interface defining the structure of a poll object
+ * Used for type safety in poll operations
+ */
 interface Poll {
   id: string;
   question: string;
@@ -12,12 +16,27 @@ interface Poll {
   user_id: string;
 }
 
+/**
+ * Props interface for the PollActions component
+ * Defines required poll data for action buttons
+ */
 interface PollActionsProps {
   poll: Poll;
 }
 
+/**
+ * Poll action component that renders poll card with management buttons
+ * Shows edit/delete buttons only to poll owners for authorization
+ * @param poll - Poll object containing ID, question, options, and user info
+ * @returns Poll card with action buttons for authorized users
+ */
 export default function PollActions({ poll }: PollActionsProps) {
   const { user } = useAuth();
+  
+  /**
+   * Handles poll deletion with user confirmation
+   * Confirms deletion intent and refreshes page on success
+   */
   const handleDelete = async () => {
     if (confirm("Are you sure you want to delete this poll?")) {
       await deletePoll(poll.id);

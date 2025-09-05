@@ -4,6 +4,10 @@ import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * Button variant configurations using class-variance-authority
+ * Defines styling for different button types, sizes, and states
+ */
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
@@ -35,6 +39,16 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Reusable button component with multiple variants and sizes
+ * Supports rendering as child element via Radix Slot for composition
+ * @param className - Additional CSS classes to apply
+ * @param variant - Button visual style (default, destructive, outline, etc.)
+ * @param size - Button size (default, sm, lg, icon)
+ * @param asChild - Whether to render as child element for composition
+ * @param props - Additional HTML button attributes
+ * @returns Styled button element or Slot component
+ */
 function Button({
   className,
   variant,
